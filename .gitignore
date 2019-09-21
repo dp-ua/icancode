@@ -1,0 +1,9 @@
+personal\*
+\personal
+*.properties
+log4j.properties
+*.bat
+\data
+.idea
+logs
+target
