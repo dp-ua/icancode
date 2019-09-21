@@ -23,6 +23,7 @@ package com.codenjoy.dojo.icancode.client;
  */
 
 
+import com.codenjoy.dojo.icancode.analize.Analize;
 import com.codenjoy.dojo.services.Dice;
 import com.codenjoy.dojo.services.Point;
 import com.codenjoy.dojo.services.RandomDice;
@@ -33,6 +34,7 @@ import java.util.List;
  * Your AI
  */
 public class YourSolver extends AbstractSolver {
+    private Analize analize = new Analize();
 
     /**
      * @param dice DIP (SOLID) for Random dependency in your Solver realization
@@ -53,18 +55,18 @@ public class YourSolver extends AbstractSolver {
         if (goals.isEmpty()) {
             goals = board.getExits();
         }
-
-        // TODO your code here
-        return Command.jump();
+        Command command = analize.getNextMove(board);
+        return command;
     }
 
     /**
      * Run this method for connect to Server
      */
     public static void main(String[] args) {
+
         connectClient(
                 // paste here board page url from browser after registration
-                "http://codenjoy.com:80/codenjoy-contest/board/player/3edq63tw0bq4w4iem7nb?code=1234567890123456789",
+                "http://dojorena.io:80/codenjoy-contest/board/player/21j3x97ybk34032hzoii?code=8736559310819449456",
                 // and solver here
                 new YourSolver(new RandomDice()));
     }
