@@ -15,7 +15,6 @@ public class Scanner {
                 return new ElementHole(x, y);
             case BOX:
                 return new ElementBox(x, y);
-
             case GOLD:
                 return new ElementGold(x, y);
             case EXIT:
