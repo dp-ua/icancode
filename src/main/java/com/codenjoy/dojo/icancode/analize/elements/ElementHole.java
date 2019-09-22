@@ -15,8 +15,8 @@ public class ElementHole extends DomainElement implements DomainJump {
     @Override
     public BackgroundMatrix getBackgroundMatrix() {
         BackgroundMatrix backgroundMatrix = new BackgroundMatrix();
-        int [][] matrix = new int[1][1];
-        matrix[0][0]=-10;
+        int[][] matrix = new int[1][1];
+        matrix[0][0] = -10;
         backgroundMatrix.setMatrix(matrix);
 
         return backgroundMatrix;

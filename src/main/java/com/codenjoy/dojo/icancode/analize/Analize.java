@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class Analize {
     private final Logger log = Logger.getLogger(Analize.class);
     Scanner scanner = new Scanner();
@@ -29,11 +28,11 @@ public class Analize {
         DomainElement[][] result = new DomainElement[field.length][field.length];
         for (int i = 0; i < field.length; i++) {
             for (int j = 0; j < field[i].length; j++) {
-                char c =  field[i][j];
+                char c = field[i][j];
 
-                if (board.isAt(i,j, Elements.BOX)) c=Elements.BOX.ch();
-                if (board.isAt(i,j, Elements.FEMALE_ZOMBIE)) c=Elements.FEMALE_ZOMBIE.ch();
-                if (board.isAt(i,j, Elements.MALE_ZOMBIE)) c=Elements.MALE_ZOMBIE.ch();
+                if (board.isAt(i, j, Elements.BOX)) c = Elements.BOX.ch();
+                if (board.isAt(i, j, Elements.FEMALE_ZOMBIE)) c = Elements.FEMALE_ZOMBIE.ch();
+                if (board.isAt(i, j, Elements.MALE_ZOMBIE)) c = Elements.MALE_ZOMBIE.ch();
                 result[i][j] = scanner.getElement(c, i, j);
             }
         }
@@ -85,7 +84,6 @@ public class Analize {
         elementBoard = getBoardOfElements(board);
         setLinkBetweenCells();
     }
-
 
     private List<DomainElement> getTargets(Board board) {
         List<DomainElement> result = new ArrayList<>();
@@ -159,18 +157,14 @@ public class Analize {
                 if (result.containsKey(entryTemp.getKey())) {
                     Pair<Integer, Command> valueFromResult = result.get(entryTemp.getKey());
                     if (valueFromResult.getKey() > entryTemp.getValue().getKey())
-                    result.put(entryTemp.getKey(), entryTemp.getValue());
+                        result.put(entryTemp.getKey(), entryTemp.getValue());
                 } else {
                     result.put(entryTemp.getKey(), entryTemp.getValue());
                     count++;
                 }
             }
             if (count == 0) break;
-
         }
-
         return result;
     }
-
-
 }

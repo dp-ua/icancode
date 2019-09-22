@@ -20,8 +20,8 @@ public class ElementFree extends DomainElement implements DomainWalk, DomainJump
     @Override
     public BackgroundMatrix getBackgroundMatrix() {
         BackgroundMatrix backgroundMatrix = new BackgroundMatrix();
-        int [][] matrix = new int[1][1];
-        matrix[0][0]=1;
+        int[][] matrix = new int[1][1];
+        matrix[0][0] = 1;
         backgroundMatrix.setMatrix(matrix);
 
         return backgroundMatrix;

@@ -7,9 +7,10 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public abstract class DomainElement {
     @Getter
-    private Map<DomainElement,Command> links;
+    private Map<DomainElement, Command> links;
     @Getter
     private int x;
     @Getter
@@ -26,8 +27,8 @@ public abstract class DomainElement {
 
     public DomainElement(int x, int y) {
         this();
-        this.x=x;
-        this.y=y;
+        this.x = x;
+        this.y = y;
     }
 
     public BackgroundMatrix getBackgroundMatrix() {
@@ -38,12 +39,12 @@ public abstract class DomainElement {
         links = new HashMap<>();
     }
 
-    public void addLinkToCell(DomainElement element,Command command) {
-        links.put(element,command);
+    public void addLinkToCell(DomainElement element, Command command) {
+        links.put(element, command);
     }
 
-    public boolean isLink(DomainElement cell){
-        return  links.containsKey(cell);
+    public boolean isLink(DomainElement cell) {
+        return links.containsKey(cell);
     }
 
 }

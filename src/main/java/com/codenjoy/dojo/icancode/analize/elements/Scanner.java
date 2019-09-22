@@ -15,6 +15,7 @@ public class Scanner {
                 return new ElementHole(x, y);
             case BOX:
                 return new ElementBox(x, y);
+
             case GOLD:
                 return new ElementGold(x, y);
             case EXIT:
@@ -28,7 +29,8 @@ public class Scanner {
                 return new ElementFree(x, y);
 
             case FEMALE_ZOMBIE:
-            case MALE_ZOMBIE: return new ElementZombie(x,y);
+            case MALE_ZOMBIE:
+                return new ElementZombie(x, y);
 
             case LASER_MACHINE_CHARGING_LEFT:
             case LASER_MACHINE_CHARGING_RIGHT:
