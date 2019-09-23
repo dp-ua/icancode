@@ -119,11 +119,9 @@ public class Analize {
         List<Point> zombies = board.getZombies();
         for (Point exitPoint : exitList)
             result.add(elementBoard[exitPoint.getX()][exitPoint.getY()]);
-
-        if (result.size() == 0)
-            for (Point goldPoint : goldList) {
-                result.add(elementBoard[goldPoint.getX()][goldPoint.getY()]);
-            }
+        for (Point goldPoint : goldList) {
+            result.add(elementBoard[goldPoint.getX()][goldPoint.getY()]);
+        }
         if (result.size() == 0) {
             List<DomainElement> unlimitCell = getUnlimitCell();
             for (DomainElement element : unlimitCell) {
