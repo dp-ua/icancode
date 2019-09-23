@@ -4,7 +4,7 @@ import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import com.codenjoy.dojo.services.Direction;
 import org.apache.log4j.Logger;
 
-public class ElementZombie extends DomainElement implements EJump, EAttack, EKill, EBlockLaser {
+public class ElementZombie extends DomainElement implements EJump,  EKill, EBlockLaser {
     private final Logger log = Logger.getLogger(ElementZombie.class);
 
     public ElementZombie(int x, int y) {

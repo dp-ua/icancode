@@ -27,10 +27,12 @@ package com.codenjoy.dojo.icancode.client;
  * Created by Oleksandr_Baglai on 2016-10-15.
  */
 public class SolverRunner {
+    final long SHORT_TIMEOUT_RECONNECT = 5000;
+    final long LONG_TIMEOUT_RECONNECT = SHORT_TIMEOUT_RECONNECT * 12;
+    final int SHOT_CONNECT_LIMIT = 5;
 
     public static void main(String[] args) {
         System.out.println("Running Java client");
         YourSolver.main(args);
-
     }
 }

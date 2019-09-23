@@ -10,7 +10,7 @@
         <version>1.1.1</version>
     </parent>
 
-    <artifactId>${module.name}-engine</artifactId>
+    <artifactId>icancode</artifactId>
 
     <properties>
         <module.name>icancode</module.name>
@@ -92,57 +92,116 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.codenjoy.dojo.icancode.client.SolverRunner</mainClass>
+                            <packageName>com.codenjoy.dojo.icancode</packageName>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <phase>process-sources</phase>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>compile</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <sourceDirs>
-                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
-                            </sourceDirs>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>process-test-sources</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>${project.basedir}/test/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/test/main/java</sourceDir>
-                            </sourceDirs>
+                            <includeScope>compile</includeScope>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+
+    <!--    <build>-->
+    <!--        <plugins>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.apache.maven.plugins</groupId>-->
+    <!--                <artifactId>maven-compiler-plugin</artifactId>-->
+    <!--            </plugin>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.apache.maven.plugins</groupId>-->
+    <!--                <artifactId>maven-source-plugin</artifactId>-->
+    <!--            </plugin>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.apache.maven.plugins</groupId>-->
+    <!--                <artifactId>maven-resources-plugin</artifactId>-->
+    <!--            </plugin>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.apache.maven.plugins</groupId>-->
+    <!--                <artifactId>maven-antrun-plugin</artifactId>-->
+    <!--            </plugin>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.jetbrains.kotlin</groupId>-->
+    <!--                <artifactId>kotlin-maven-plugin</artifactId>-->
+    <!--                <version>${kotlin.version}</version>-->
+    <!--                <executions>-->
+    <!--                    <execution>-->
+    <!--                        <id>compile</id>-->
+    <!--                        <phase>process-sources</phase>-->
+    <!--                        <goals>-->
+    <!--                            <goal>compile</goal>-->
+    <!--                        </goals>-->
+    <!--                        <configuration>-->
+    <!--                            <sourceDirs>-->
+    <!--                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>-->
+    <!--                                <sourceDir>${project.basedir}/src/main/java</sourceDir>-->
+    <!--                            </sourceDirs>-->
+    <!--                        </configuration>-->
+    <!--                    </execution>-->
+    <!--                    <execution>-->
+    <!--                        <id>test-compile</id>-->
+    <!--                        <phase>process-test-sources</phase>-->
+    <!--                        <goals>-->
+    <!--                            <goal>test-compile</goal>-->
+    <!--                        </goals>-->
+    <!--                        <configuration>-->
+    <!--                            <sourceDirs>-->
+    <!--                                <sourceDir>${project.basedir}/test/main/kotlin</sourceDir>-->
+    <!--                                <sourceDir>${project.basedir}/test/main/java</sourceDir>-->
+    <!--                            </sourceDirs>-->
+    <!--                        </configuration>-->
+    <!--                    </execution>-->
+    <!--                </executions>-->
+    <!--            </plugin>-->
+    <!--        </plugins>-->
+    <!--    </build>-->
 </project>

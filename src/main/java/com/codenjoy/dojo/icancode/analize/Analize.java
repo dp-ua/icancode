@@ -1,5 +1,6 @@
 package com.codenjoy.dojo.icancode.analize;
 
+import com.codenjoy.dojo.icancode.analize.elements.ElementFree;
 import com.codenjoy.dojo.icancode.analize.elements.Scanner;
 import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import com.codenjoy.dojo.icancode.client.Board;
@@ -11,9 +12,14 @@ import javafx.util.Pair;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class Analize {
     public static final int RANGE_ATTACK_SCAN = 4;
+
+    private int tick;
+    private Pair<Integer, Direction> fireTick = new Pair<>(Integer.MAX_VALUE, Direction.STOP);
+
 
     private final Logger log = Logger.getLogger(Analize.class);
     Scanner scanner = new Scanner();
@@ -79,21 +85,59 @@ public class Analize {
         setLinkBetweenCells();
     }
 
+    private List<DomainElement> getUnlimitCell() {
+        List<DomainElement> result = new ArrayList<>();
+        int x = 0;
+        int y = 19;
+        Direction scanDirection = Direction.RIGHT;
+        System.out.println("START SCAN");
+        do {
+            x = scanDirection.changeX(x);
+            y = scanDirection.changeY(y);
+            if (isPointInField(x, y, elementBoard)) {
+                DomainElement element = elementBoard[x][y];
+                if (element instanceof ElementFree) result.add(element);
+            } else {
+                x -= scanDirection.changeX(x) - x;
+                y -= scanDirection.changeY(y) - y;
+                scanDirection = scanDirection.clockwise();
+            }
+
+        }
+        while (!(x == 0 && y == 19));
+        System.out.println("FINISH SCAN");
+        return result;
+    }
+
+
     private List<DomainElement> getTargets(Board board) {
+
         List<DomainElement> result = new ArrayList<>();
         List<Point> goldList = board.getGold();
         List<Point> robots = board.getOtherHeroes();
         List<Point> exitList = board.getExits();
-        for (Point point : robots) {
-            result.add(elementBoard[point.getX()][point.getY()]);
-        }
+        List<Point> zombies = board.getZombies();
+        for (Point exitPoint : exitList)
+            result.add(elementBoard[exitPoint.getX()][exitPoint.getY()]);
 
-        for (Point goldPoint : goldList) {
-            result.add(elementBoard[goldPoint.getX()][goldPoint.getY()]);
+        if (result.size() == 0)
+            for (Point goldPoint : goldList) {
+                result.add(elementBoard[goldPoint.getX()][goldPoint.getY()]);
+            }
+        if (result.size() == 0) {
+            List<DomainElement> unlimitCell = getUnlimitCell();
+            for (DomainElement element : unlimitCell) {
+                result.add(element);
+            }
         }
         if (result.size() == 0)
-            for (Point exitPoint : exitList)
-                result.add(elementBoard[exitPoint.getX()][exitPoint.getY()]);
+            for (Point point : robots) {
+                result.add(elementBoard[point.getX()][point.getY()]);
+            }
+        if (result.size() == 0)
+            for (Point point : zombies)
+                result.add(elementBoard[point.getX()][point.getY()]);
+
 // TODO: 22.09.2019 научиться искать выходы, если на карте нет специальной точки
         return result;
     }
@@ -121,31 +165,40 @@ public class Analize {
     }
 
     public Command getNextMove(Board board) {
+        tick++;
         Command result = Command.jump();
 
         analizeBoard(board);
 
         DomainElement myPosition = elementBoard[board.getMe().getX()][board.getMe().getY()];
         int enemies = board.getOtherHeroes().size();
-           Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition = getAllLinksFromThisPoint(myPosition);
-        Map<DomainElement, Direction> closetEnemiesThatISee = new HashMap<>();
-        if (isICanShoot()) {
-            closetEnemiesThatISee = getClosetEnemiesThatISee(myPosition);
-        }
-        if (closetEnemiesThatISee.size() > 0)
-            result = getCommandForShoot(myPosition, closetEnemiesThatISee);
-        else
+        Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition = getAllLinksFromThisPoint(myPosition);
+        Map<DomainElement, Direction> closetEnemiesThatISee = getClosetEnemiesThatISee(myPosition);
+        Direction prohibitedDirection = (tick - fireTick.getKey() <= 2) ? fireTick.getValue() : Direction.STOP;
+        if (closetEnemiesThatISee.size() > 0) {
+            Direction fireDirection = getDirectionForFire(myPosition, closetEnemiesThatISee);
+            result = Command.fire(fireDirection);
+            fireTick = new Pair<>(tick, fireDirection);
+        } else {
             result = getCommandForMove(board, allLinksFromMyPosition);
-
+            if (result.toString().contains(prohibitedDirection.toString())) result = randomMove(prohibitedDirection);
+        }
         if ("".equals(result.toString())) {
             System.out.println("Почему-то нет действия. Генерирую случайный шаг");
-            result = Command.go(Direction.random());
+            result = randomMove(prohibitedDirection);
         }
         System.out.println("Буду делать:  " + result);
         return result;
     }
 
-    private Command getCommandForShoot(DomainElement myPositionElement, Map<DomainElement, Direction> closetEnemiesThatISee) {
+    private Command randomMove(Direction prohibited) {
+        while (true) {
+            Direction random = Direction.random();
+            if (!random.equals(prohibited)) return Command.go(random);
+        }
+    }
+
+    private Direction getDirectionForFire(DomainElement myPositionElement, Map<DomainElement, Direction> closetEnemiesThatISee) {
         double range = RANGE_ATTACK_SCAN + 1;
         Direction closest = Direction.STOP;
         for (Map.Entry<DomainElement, Direction> entry : closetEnemiesThatISee.entrySet()) {
@@ -157,7 +210,7 @@ public class Analize {
                 closest = entry.getValue();
             }
         }
-        return Command.fire(closest);
+        return closest;
     }
 
     private Command getCommandForMove(Board board, Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition) {
@@ -181,10 +234,6 @@ public class Analize {
 
 
     private boolean isICanShoot() {
-        for (int i = 0; i < elementBoard.length; i++)
-            for (int j = 0; j < elementBoard[i].length; j++) {
-                if (elementBoard[i][j].isMyLaser()) return false;
-            }
         return true;
     }
 
@@ -228,8 +277,8 @@ public class Analize {
                     DomainElement link = entry.getKey();
                     if (link instanceof EAttack) {
                         Direction attackDirection = link.getAttackDirection();
-                        if (attackDirection==Direction.STOP) return false;
-                        if (attackDirection.inverted()==Direction.valueOf(command.toString())) return false;
+                        if (attackDirection == Direction.STOP) return false;
+                        if (attackDirection.inverted() == Direction.valueOf(command.toString())) return false;
                     }
             }
         }

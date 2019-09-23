@@ -14,6 +14,11 @@ public class ElementExit extends DomainElement implements EWalk {
     }
 
     @Override
+    public String toString() {
+        return "EXIT" + super.toString();
+    }
+
+    @Override
     public BackgroundMatrix getBackgroundMatrix() {
         BackgroundMatrix backgroundMatrix = new BackgroundMatrix();
         int[][] matrix = new int[1][1];

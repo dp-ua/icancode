@@ -12,6 +12,11 @@ public class ElementEnemyRobot extends DomainElement implements EJump,  EKill, E
         this.setPriority(EPriority.HIGH);
     }
 
+    @Override
+    public String toString() {
+        return "Enemy " + super.toString();
+    }
+
     public ElementEnemyRobot(int x, int y, Direction attackDirection) {
         this(x, y);
         //ignore attack direction. Use default
