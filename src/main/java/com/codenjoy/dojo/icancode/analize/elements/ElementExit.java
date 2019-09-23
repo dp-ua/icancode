@@ -1,14 +1,16 @@
 package com.codenjoy.dojo.icancode.analize.elements;
 
 import com.codenjoy.dojo.icancode.analize.elements.domain.DomainElement;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainWalk;
+import com.codenjoy.dojo.icancode.analize.elements.domain.EPriority;
+import com.codenjoy.dojo.icancode.analize.elements.domain.EWalk;
 import org.apache.log4j.Logger;
 
-public class ElementExit extends DomainElement implements DomainWalk {
+public class ElementExit extends DomainElement implements EWalk {
     private final Logger log = Logger.getLogger(ElementExit.class);
 
     public ElementExit(int x, int y) {
         super(x, y);
+        this.setPriority(EPriority.MID);
     }
 
     @Override

@@ -1,13 +1,16 @@
 package com.codenjoy.dojo.icancode.analize.elements;
 
 import com.codenjoy.dojo.icancode.analize.elements.domain.DomainElement;
+import com.codenjoy.dojo.icancode.analize.elements.domain.EBlockLaser;
+import com.codenjoy.dojo.icancode.analize.elements.domain.EPriority;
 import org.apache.log4j.Logger;
 
-public class ElementWall extends DomainElement {
+public class ElementWall extends DomainElement implements EBlockLaser {
     private final Logger log = Logger.getLogger(ElementWall.class);
 
     public ElementWall(int x, int y) {
         super(x, y);
+        this.setPriority(EPriority.HIGH);
     }
 
     @Override

@@ -4,17 +4,17 @@ import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import com.codenjoy.dojo.services.Direction;
 import org.apache.log4j.Logger;
 
-public class ElementZombie extends DomainElement implements EJump, EAttack, EKill, EBlockLaser {
-    private final Logger log = Logger.getLogger(ElementZombie.class);
+public class ElementLaser extends DomainElement implements EJump, EAttack {
+    private final Logger log = Logger.getLogger(ElementLaser.class);
 
-    public ElementZombie(int x, int y) {
+    public ElementLaser(int x, int y) {
         super(x, y);
         this.setPriority(EPriority.HIGH);
     }
 
-    public ElementZombie(int x, int y, Direction attackDirection) {
-        this(x, y);
-        //ignore attack direction. Use default
+    public ElementLaser(int x, int y, Direction attackDirection) {
+        super(x, y,Direction.STOP);
+        this.setPriority(EPriority.HIGH);
     }
 
     @Override

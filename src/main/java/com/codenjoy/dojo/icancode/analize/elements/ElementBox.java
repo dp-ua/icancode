@@ -1,15 +1,13 @@
 package com.codenjoy.dojo.icancode.analize.elements;
 
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainElement;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainJump;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainMove;
+import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import org.apache.log4j.Logger;
 
-public class ElementBox extends DomainElement implements DomainJump, DomainMove {
+public class ElementBox extends DomainElement implements EJump, EMove, EBlockLaser {
     private final Logger log = Logger.getLogger(ElementBox.class);
 
     public ElementBox(int x, int y) {
-        super(x, y);
+        super(x, y);this.setPriority(EPriority.MID);
     }
 
     @Override

@@ -4,15 +4,15 @@ import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import com.codenjoy.dojo.services.Direction;
 import org.apache.log4j.Logger;
 
-public class ElementZombie extends DomainElement implements EJump, EAttack, EKill, EBlockLaser {
-    private final Logger log = Logger.getLogger(ElementZombie.class);
+public class ElementEnemyRobot extends DomainElement implements EJump,  EKill, EBlockLaser, EWalk {
+    private final Logger log = Logger.getLogger(ElementEnemyRobot.class);
 
-    public ElementZombie(int x, int y) {
+    public ElementEnemyRobot(int x, int y) {
         super(x, y);
         this.setPriority(EPriority.HIGH);
     }
 
-    public ElementZombie(int x, int y, Direction attackDirection) {
+    public ElementEnemyRobot(int x, int y, Direction attackDirection) {
         this(x, y);
         //ignore attack direction. Use default
     }

@@ -1,9 +1,7 @@
 package com.codenjoy.dojo.icancode.analize;
 
 import com.codenjoy.dojo.icancode.analize.elements.Scanner;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainElement;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainJump;
-import com.codenjoy.dojo.icancode.analize.elements.domain.DomainWalk;
+import com.codenjoy.dojo.icancode.analize.elements.domain.*;
 import com.codenjoy.dojo.icancode.client.Board;
 import com.codenjoy.dojo.icancode.client.Command;
 import com.codenjoy.dojo.icancode.model.Elements;
@@ -12,12 +10,11 @@ import com.codenjoy.dojo.services.Point;
 import javafx.util.Pair;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Analize {
+    public static final int RANGE_ATTACK_SCAN = 4;
+
     private final Logger log = Logger.getLogger(Analize.class);
     Scanner scanner = new Scanner();
 
@@ -29,11 +26,8 @@ public class Analize {
         for (int i = 0; i < field.length; i++) {
             for (int j = 0; j < field[i].length; j++) {
                 char c = field[i][j];
-
-                if (board.isAt(i, j, Elements.BOX)) c = Elements.BOX.ch();
-                if (board.isAt(i, j, Elements.FEMALE_ZOMBIE)) c = Elements.FEMALE_ZOMBIE.ch();
-                if (board.isAt(i, j, Elements.MALE_ZOMBIE)) c = Elements.MALE_ZOMBIE.ch();
-                result[i][j] = scanner.getElement(c, i, j);
+                List<Elements> allAt = board.getAllAt(i, j);
+                result[i][j] = scanner.getMainCellElement(allAt, i, j);
             }
         }
         return result;
@@ -53,21 +47,21 @@ public class Analize {
         for (int i = 0; i < elementBoard.length; i++) {
             for (int j = 0; j < elementBoard[i].length; j++) {
                 DomainElement currentElement = elementBoard[i][j];
-                if (currentElement instanceof DomainWalk) {
+                if (currentElement instanceof EWalk) {
                     Direction direction = Direction.UP;
                     do {
                         int x = direction.changeX(i);
                         int y = direction.changeY(j);
                         if (isPointInField(x, y, elementBoard)) {
                             DomainElement tempElement = elementBoard[x][y];
-                            if (tempElement instanceof DomainWalk)
+                            if (tempElement instanceof EWalk)
                                 currentElement.addLinkToCell(tempElement, Command.go(direction));
-                            if (tempElement instanceof DomainJump) {
+                            if (tempElement instanceof EJump) {
                                 x = direction.changeX(x);
                                 y = direction.changeY(y);
                                 if (isPointInField(x, y, elementBoard)) {
                                     tempElement = elementBoard[x][y];
-                                    if (tempElement instanceof DomainWalk)
+                                    if (tempElement instanceof EWalk)
                                         currentElement.addLinkToCell(tempElement, Command.jump(direction));
                                 }
                             }
@@ -88,7 +82,12 @@ public class Analize {
     private List<DomainElement> getTargets(Board board) {
         List<DomainElement> result = new ArrayList<>();
         List<Point> goldList = board.getGold();
+        List<Point> robots = board.getOtherHeroes();
         List<Point> exitList = board.getExits();
+        for (Point point : robots) {
+            result.add(elementBoard[point.getX()][point.getY()]);
+        }
+
         for (Point goldPoint : goldList) {
             result.add(elementBoard[goldPoint.getX()][goldPoint.getY()]);
         }
@@ -122,20 +121,120 @@ public class Analize {
     }
 
     public Command getNextMove(Board board) {
-        Command result = Command.doNothing();
+        Command result = Command.jump();
 
         analizeBoard(board);
 
-        DomainElement myPositionElement = elementBoard[board.getMe().getX()][board.getMe().getY()];
-        Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition = getAllLinksFromThisPoint(myPositionElement);
+        DomainElement myPosition = elementBoard[board.getMe().getX()][board.getMe().getY()];
+        int enemies = board.getOtherHeroes().size();
+           Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition = getAllLinksFromThisPoint(myPosition);
+        Map<DomainElement, Direction> closetEnemiesThatISee = new HashMap<>();
+        if (isICanShoot()) {
+            closetEnemiesThatISee = getClosetEnemiesThatISee(myPosition);
+        }
+        if (closetEnemiesThatISee.size() > 0)
+            result = getCommandForShoot(myPosition, closetEnemiesThatISee);
+        else
+            result = getCommandForMove(board, allLinksFromMyPosition);
+
+        if ("".equals(result.toString())) {
+            System.out.println("Почему-то нет действия. Генерирую случайный шаг");
+            result = Command.go(Direction.random());
+        }
+        System.out.println("Буду делать:  " + result);
+        return result;
+    }
+
+    private Command getCommandForShoot(DomainElement myPositionElement, Map<DomainElement, Direction> closetEnemiesThatISee) {
+        double range = RANGE_ATTACK_SCAN + 1;
+        Direction closest = Direction.STOP;
+        for (Map.Entry<DomainElement, Direction> entry : closetEnemiesThatISee.entrySet()) {
+            double tempRange = Math.sqrt(
+                    Math.pow(myPositionElement.getX() - entry.getKey().getX(), 2) +
+                            Math.pow(myPositionElement.getY() - entry.getKey().getY(), 2));
+            if (tempRange < range) {
+                range = tempRange;
+                closest = entry.getValue();
+            }
+        }
+        return Command.fire(closest);
+    }
+
+    private Command getCommandForMove(Board board, Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition) {
+        Command result;
         List<DomainElement> targets = getTargets(board);
         if (targets.size() > 0) {
             DomainElement priorityTarget = getPriorityTarget(targets, allLinksFromMyPosition);
             if (priorityTarget != null) {
+                System.out.println("Целюсь в " + priorityTarget);
                 result = allLinksFromMyPosition.get(priorityTarget).getValue();
-            } else result = getBestRandomMove(allLinksFromMyPosition);
-        } else result = getBestRandomMove(allLinksFromMyPosition);
+            } else {
+                System.out.println("Нет достижимых целей. Хожу рандомно");
+                result = getBestRandomMove(allLinksFromMyPosition);
+            }
+        } else {
+            System.out.println("Нет целей. Хожу рандомно");
+            result = getBestRandomMove(allLinksFromMyPosition);
+        }
         return result;
+    }
+
+
+    private boolean isICanShoot() {
+        for (int i = 0; i < elementBoard.length; i++)
+            for (int j = 0; j < elementBoard[i].length; j++) {
+                if (elementBoard[i][j].isMyLaser()) return false;
+            }
+        return true;
+    }
+
+    private Map<DomainElement, Direction> getClosetEnemiesThatISee(DomainElement me) {
+        Map<DomainElement, Direction> result = new HashMap<>();
+        Direction scanDirection = Direction.UP;
+
+        do {
+            int x = me.getX();
+            int y = me.getY();
+            for (int i = 0; i < RANGE_ATTACK_SCAN; i++) {
+                x = scanDirection.changeX(x);
+                y = scanDirection.changeY(y);
+                if (isPointInField(x, y, elementBoard)) {
+                    DomainElement tempElement = elementBoard[x][y];
+                    if (tempElement instanceof EKill) {
+                        result.put(tempElement, scanDirection);
+                        break;
+                    }
+                    if (tempElement instanceof EBlockLaser) {
+                        break;
+                    }
+                } else break;
+            }
+            scanDirection = scanDirection.clockwise();
+        } while (scanDirection != Direction.UP);
+        return result;
+    }
+
+    private boolean isGoodElementForMove(DomainElement element) {
+        if (element instanceof EAttack) return false;
+        if (element instanceof EKill) return true;
+        Map<DomainElement, Command> links = element.getLinks();
+        for (Map.Entry<DomainElement, Command> entry : links.entrySet()) {
+            Command command = entry.getValue();
+            switch (command.toString()) {
+                case "UP":
+                case "RIGHT":
+                case "LEFT":
+                case "DOWN":
+                    DomainElement link = entry.getKey();
+                    if (link instanceof EAttack) {
+                        Direction attackDirection = link.getAttackDirection();
+                        if (attackDirection==Direction.STOP) return false;
+                        if (attackDirection.inverted()==Direction.valueOf(command.toString())) return false;
+                    }
+            }
+        }
+
+        return true;
     }
 
     private Map<DomainElement, Pair<Integer, Command>> getAllLinksFromThisPoint(DomainElement element) {
@@ -149,8 +248,10 @@ public class Analize {
             for (Map.Entry<DomainElement, Pair<Integer, Command>> entryResult : result.entrySet()) {
                 Map<DomainElement, Command> links = entryResult.getKey().getLinks();
                 for (Map.Entry<DomainElement, Command> entryLinks : links.entrySet()) {
-                    Command command = move == 1 ? entryLinks.getValue() : entryResult.getValue().getValue();
-                    temp.put(entryLinks.getKey(), new Pair<>(move, command));
+                    if (isGoodElementForMove(entryLinks.getKey())) {
+                        Command command = move == 1 ? entryLinks.getValue() : entryResult.getValue().getValue();
+                        temp.put(entryLinks.getKey(), new Pair<>(move, command));
+                    }
                 }
             }
             for (Map.Entry<DomainElement, Pair<Integer, Command>> entryTemp : temp.entrySet()) {
