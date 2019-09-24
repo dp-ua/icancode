@@ -90,7 +90,6 @@ public class Analize {
         int x = 0;
         int y = 19;
         Direction scanDirection = Direction.RIGHT;
-        System.out.println("START SCAN");
         do {
             x = scanDirection.changeX(x);
             y = scanDirection.changeY(y);
@@ -105,7 +104,6 @@ public class Analize {
 
         }
         while (!(x == 0 && y == 19));
-        System.out.println("FINISH SCAN");
         return result;
     }
 
@@ -172,14 +170,15 @@ public class Analize {
         int enemies = board.getOtherHeroes().size();
         Map<DomainElement, Pair<Integer, Command>> allLinksFromMyPosition = getAllLinksFromThisPoint(myPosition);
         Map<DomainElement, Direction> closetEnemiesThatISee = getClosetEnemiesThatISee(myPosition);
-        Direction prohibitedDirection = (tick - fireTick.getKey() <= 2) ? fireTick.getValue() : Direction.STOP;
+        Direction prohibitedDirection = (tick - fireTick.getKey() <= 1) ? fireTick.getValue() : Direction.STOP;
         if (closetEnemiesThatISee.size() > 0) {
+            System.out.println("Кругом враги. Рота в ружье");
             Direction fireDirection = getDirectionForFire(myPosition, closetEnemiesThatISee);
             result = Command.fire(fireDirection);
             fireTick = new Pair<>(tick, fireDirection);
         } else {
             result = getCommandForMove(board, allLinksFromMyPosition);
-            if (result.toString().contains(prohibitedDirection.toString())) result = randomMove(prohibitedDirection);
+            if (result.toString().contains(prohibitedDirection.toString())) result = Command.doNothing();
         }
         if ("".equals(result.toString())) {
             System.out.println("Почему-то нет действия. Генерирую случайный шаг");
