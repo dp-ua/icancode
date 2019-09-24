@@ -28,6 +28,8 @@ import com.codenjoy.dojo.services.Dice;
 import com.codenjoy.dojo.services.Point;
 import com.codenjoy.dojo.services.RandomDice;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -35,6 +37,7 @@ import java.util.List;
  */
 public class YourSolver extends AbstractSolver {
     private Analize analize = new Analize();
+
 
     /**
      * @param dice DIP (SOLID) for Random dependency in your Solver realization
@@ -50,13 +53,20 @@ public class YourSolver extends AbstractSolver {
     @Override
     public Command whatToDo(Board board) {
         if (!board.isMeAlive()) return Command.doNothing();
-
-        List<Point> goals = board.getGold();
-        if (goals.isEmpty()) {
-            goals = board.getExits();
-        }
+        LocalDateTime start = LocalDateTime.now();
+        System.out.println("Старт: " + getTimeString(start));
+        long startms = System.currentTimeMillis();
         Command command = analize.getNextMove(board);
+        LocalDateTime end = LocalDateTime.now();
+        long endms = System.currentTimeMillis();
+        System.out.println("Закончил думать: " + getTimeString(start));
+        System.out.println("Время принятия решения: " + (endms - startms) + "ms");
         return command;
+    }
+
+    private String getTimeString(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd.MM.yyyy");
+        return localDateTime.format(formatter);
     }
 
     /**
