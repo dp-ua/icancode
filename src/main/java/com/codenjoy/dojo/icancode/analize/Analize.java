@@ -19,6 +19,7 @@ public class Analize {
 
     private int tick;
     private Pair<Integer, Direction> fireTick = new Pair<>(Integer.MAX_VALUE, Direction.STOP);
+    private int noMoveTick;
 
 
     private final Logger log = Logger.getLogger(Analize.class);
@@ -181,8 +182,14 @@ public class Analize {
             if (result.toString().contains(prohibitedDirection.toString())) result = Command.doNothing();
         }
         if ("".equals(result.toString())) {
-            System.out.println("Почему-то нет действия. Генерирую случайный шаг");
-            result = randomMove(prohibitedDirection);
+            System.out.println("Действие пустое");
+            if (tick - noMoveTick == 1) {
+                result = randomMove(prohibitedDirection);
+                System.out.println("Делаю случайный ход");
+            } else {
+                noMoveTick = tick;
+                System.out.println("Пропущу один ход");
+            }
         }
         System.out.println("Буду делать:  " + result);
         return result;

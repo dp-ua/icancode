@@ -52,14 +52,15 @@ public class YourSolver extends AbstractSolver {
      */
     @Override
     public Command whatToDo(Board board) {
-        if (!board.isMeAlive()) return Command.doNothing();
         LocalDateTime start = LocalDateTime.now();
         System.out.println("Старт: " + getTimeString(start));
         long startms = System.currentTimeMillis();
+        if (!board.isMeAlive()) {
+            System.out.println("Умер. Так бывает :)");
+            return Command.doNothing();
+        }
         Command command = analize.getNextMove(board);
-        LocalDateTime end = LocalDateTime.now();
         long endms = System.currentTimeMillis();
-        System.out.println("Закончил думать: " + getTimeString(start));
         System.out.println("Время принятия решения: " + (endms - startms) + "ms");
         return command;
     }

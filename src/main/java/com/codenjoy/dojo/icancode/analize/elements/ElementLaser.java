@@ -13,7 +13,7 @@ public class ElementLaser extends DomainElement implements EJump, EAttack {
     }
 
     public ElementLaser(int x, int y, Direction attackDirection) {
-        super(x, y,Direction.STOP);
+        super(x, y, Direction.STOP);
         this.setPriority(EPriority.HIGH);
     }
 
